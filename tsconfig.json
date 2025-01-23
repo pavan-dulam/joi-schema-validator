@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"target": "es2016", // Or a suitable target for Node.js or browsers
+		"module": "commonjs", // Or "esnext" if targeting modern environments
+		"outDir": "./dist", // Output directory for compiled JavaScript
+		"strict": true, // Enable strict type checking
+		"esModuleInterop": true, // Important for interoperability with CommonJS modules
+		"skipLibCheck": true, // Skip type checking of declaration files
+		"forceConsistentCasingInFileNames": true, // Enforce consistent casing
+		"declaration": true, // Generate declaration files (.d.ts)
+		"declarationDir": "./dist/types", // Output directory for declaration files
+		"sourceMap": true // Generate source maps for debugging
+	},
+	"include": [
+		"src/**/*.ts" // Include all TypeScript files in the src directory
+	],
+	"exclude": ["node_modules"]
+}

@@ -1,0 +1,29 @@
+{
+	"name": "joi-validator",
+	"version": "1.0.0",
+	"description": "A world-class Joi validation error formatter for structured, user-friendly error handling.",
+	"main": "dist/index.js",
+	"types": "dist/types/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"test": "jest",
+		"prepare": "npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/pavan-dulam/joi-validator.git"
+	},
+	"keywords": [],
+	"author": "pavan dulam <pavandulam16@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/pavan-dulam/joi-validator/issues"
+	},
+	"homepage": "https://github.com/pavan-dulam/joi-validator#readme",
+	"devDependencies": {
+		"@types/joi": "^17.2.3",
+		"@types/node": "^22.10.9",
+		"joi": "^17.13.3",
+		"typescript": "^5.7.3"
+	}
+}
