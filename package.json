@@ -1,5 +1,5 @@
 {
-	"name": "joi-validator",
+	"name": "joi-schema-validator",
 	"version": "1.0.0",
 	"description": "A world-class Joi validation error formatter for structured, user-friendly error handling.",
 	"main": "dist/index.js",
@@ -11,19 +11,45 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/pavan-dulam/joi-validator.git"
+		"url": "git+https://github.com/pavan-dulam/joi-schema-validator"
 	},
-	"keywords": [],
 	"author": "pavan dulam <pavandulam16@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/pavan-dulam/joi-validator/issues"
+		"url": "https://github.com/pavan-dulam/joi-schema-validator/issues"
 	},
-	"homepage": "https://github.com/pavan-dulam/joi-validator#readme",
+	"homepage": "https://github.com/pavan-dulam/joi-schema-validator#readme",
 	"devDependencies": {
-		"@types/joi": "^17.2.3",
-		"@types/node": "^22.10.9",
-		"joi": "^17.13.3",
-		"typescript": "^5.7.3"
-	}
+		"@types/joi": "17.2.3",
+		"@types/node": "22.10.9",
+		"joi": "17.13.3",
+		"typescript": "5.7.3"
+	},
+	"keywords": [
+		"joi",
+		"validator",
+		"validation",
+		"joi-validator",
+		"joi-schema",
+		"data-validation",
+		"schema-validation",
+		"error-handling",
+		"dynamic-validation",
+		"typescript",
+		"custom-validation",
+		"npm-package",
+		"input-validation",
+		"backend-validation",
+		"form-validation",
+		"validation-errors",
+		"error-formatting",
+		"dynamic-error-handling",
+		"custom-suggestions",
+		"human-readable-errors",
+		"enterprise-ready",
+		"api-validation",
+		"nested-validation",
+		"frontend-friendly",
+		"field-validation"
+	]
 }
