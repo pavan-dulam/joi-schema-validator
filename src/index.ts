@@ -1,26 +1,24 @@
-// src/index.ts
-import Joi, { Schema, ValidationResult } from 'joi';
+import Joi, { Schema } from 'joi';
 import { formatError } from './formatter';
 import { ErrorMessages } from './types';
 import { defaultErrorMessages } from './joiErrorMessages';
 
-export const humanJoi = (
+export const joiSchemaValidator = (
 	schema: Schema,
-	messages: ErrorMessages = defaultErrorMessages
+	messages?: ErrorMessages
 ) => {
 	return {
-		validate: (
-			input: any,
-			options?: Joi.ValidationOptions
-		): { value: any; error: { [key: string]: string[] } | null } => {
-			const result: ValidationResult = schema.validate(input, options);
-
-			if (result.error) {
-				const formattedErrors = formatError(result.error, messages);
-				return { value: result.value, error: formattedErrors };
-			}
-
-			return { value: result.value, error: null };
+		validate: (input: any, options?: Joi.ValidationOptions) => {
+			const { error, value } = schema.validate(input, {
+				...options,
+				abortEarly: false
+			});
+			return {
+				value,
+				error: error
+					? formatError(error, messages || defaultErrorMessages)
+					: null
+			};
 		}
 	};
 };

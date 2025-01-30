@@ -1,31 +1,47 @@
 import { ValidationError } from 'joi';
 import { ErrorMessages } from './types';
 
+export interface ValidationErrorItemFormatted {
+	field: string;
+	type: string;
+	message: string;
+}
+
 export const formatError = (
 	error: ValidationError,
 	messages: ErrorMessages
-): { [key: string]: string[] } => {
-	const formattedErrors: { [key: string]: string[] } = {};
+): ValidationErrorItemFormatted[] => {
+	return error.details.map((detail) => {
+		const field = detail.path.join('.'); // Supports nested fields like settings.theme
+		const type = detail.type;
 
-	error.details.forEach((detail) => {
-		const key = detail.path.join('.'); // Handle nested paths
-		const messageTemplate =
-			messages[detail.type] || '{{#label}} is invalid.'; // Fallback message
-		let message = messageTemplate;
+		// Get the error message template or default message
+		let messageTemplate = messages[type] || `"${field}" is invalid.`;
 
-		// Replace placeholders like {{#label}} and {{#limit}}
-		for (const contextKey in detail.context) {
-			message = message.replace(
-				`{{#${contextKey}}}`,
-				detail.context[contextKey]?.toString() || ''
-			);
+		// Avoid duplicate field names in messages
+		messageTemplate = messageTemplate.replace(
+			new RegExp(`^${field}\\s+`, 'i'),
+			''
+		);
+
+		// Replace placeholders with actual values
+		if (detail.context) {
+			Object.entries(detail.context).forEach(([key, value]) => {
+				messageTemplate = messageTemplate.replace(
+					new RegExp(`{#${key}}`, 'g'),
+					value?.toString() || ''
+				);
+			});
 		}
 
-		if (!formattedErrors[key]) {
-			formattedErrors[key] = [];
-		}
-		formattedErrors[key].push(message);
+		// Ensure proper sentence case
+		messageTemplate =
+			messageTemplate.charAt(0).toUpperCase() + messageTemplate.slice(1);
+
+		return {
+			field,
+			type,
+			message: messageTemplate
+		};
 	});
-
-	return formattedErrors;
 };
