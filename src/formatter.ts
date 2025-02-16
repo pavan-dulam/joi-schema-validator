@@ -12,19 +12,17 @@ export const formatError = (
 	messages: ErrorMessages
 ): ValidationErrorItemFormatted[] => {
 	return error.details.map((detail) => {
-		const field = detail.path.join('.'); // Supports nested fields like settings.theme
+		const field = detail.path.join('.'); // Supports nested fields like "address.street"
 		const type = detail.type;
 
-		// Get the error message template or default message
-		let messageTemplate = messages[type] || `"${field}" is invalid.`;
+		// Check for field-specific override, e.g., "name.string.min"
+		const fieldSpecificKey = `${field}.${type}`;
+		let messageTemplate =
+			messages[fieldSpecificKey] ||
+			messages[type] ||
+			`${field} is invalid.`;
 
-		// Avoid duplicate field names in messages
-		messageTemplate = messageTemplate.replace(
-			new RegExp(`^${field}\\s+`, 'i'),
-			''
-		);
-
-		// Replace placeholders with actual values
+		// Replace placeholders with actual values from context
 		if (detail.context) {
 			Object.entries(detail.context).forEach(([key, value]) => {
 				messageTemplate = messageTemplate.replace(
