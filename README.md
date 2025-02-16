@@ -8,12 +8,13 @@ A world-class Joi validation error formatter for structured, user-friendly error
 
 ## Features
 
--   **Human-readable error messages** for better debugging.
--   **Customizable error messages** to fit your requirements.
--   **Supports nested object validation**.
--   **Enterprise-ready** validation handling.
--   **TypeScript support** for strict type safety.
--   **Lightweight and efficient**.
+-   **Synchronous Validation** with custom error formatting and field-level error message overrides.
+-   **Async Validation Support** (`validateAsync`): Validate data asynchronously (ideal for checks like database lookups or external API calls).
+-   **Express Middleware for Validation** (`validateMiddleware`): Easily integrate validation into Express routes.
+-   **Custom Error Formatting Options:** Merge custom error messages with default messages. Field-specific overrides (e.g., `name.string.min`) allow granular control.
+-   **Enhanced Type Safety:** Validation results are strongly typed via `ValidationResult<T>`.
+-   **Supports Nested Object Validation.**
+-   **Enterprise-ready & Lightweight.**
 
 ## Installation
 
@@ -31,106 +32,135 @@ yarn add joi-schema-validator
 
 ## Usage
 
-### Basic Example
+This version exposes three main functions that you can import individually for a smoother experience:
+
+```typescript
+import {
+	validate,
+	validateAsync,
+	validateMiddleware
+} from 'joi-schema-validator';
+```
+
+### Synchronous Validation
 
 ```typescript
 import Joi from 'joi';
-import { joiSchemaValidator } from 'joi-schema-validator';
+import { validate } from 'joi-schema-validator';
 
 const schema = Joi.object({
-	name: Joi.string().min(3).required(),
-	email: Joi.string().email().required(),
-	age: Joi.number().min(18)
+	name: Joi.string().min(3).required().label('Name'),
+	age: Joi.number().min(18).required().label('Age'),
+	email: Joi.string().email().required().label('Email'),
+	address: Joi.string().optional().label('Address')
 });
 
-const validator = joiSchemaValidator(schema);
-const { value, error } = validator.validate({
-	name: 'Jo',
-	email: 'invalid-email'
-});
-
-console.log(value); // Outputs validated data
-console.log(error); // Outputs formatted error messages
-```
-
-### Example Output
-
-```json
-[
-	{
-		"field": "name",
-		"type": "string.min",
-		"message": "Name must have at least 3 characters."
-	},
-	{
-		"field": "email",
-		"type": "string.email",
-		"message": "Email must be a valid email address."
-	}
-]
-```
-
-## Custom Error Messages
-
-You can provide custom error messages by passing them as the second argument:
-
-```typescript
+// Custom messages: global override and field-specific override for "name"
 const customMessages = {
-	'string.min': '{#label} is too short!',
-	'string.email': 'Please enter a valid email!'
+	// Global override for string.min errors
+	'string.min': '{#label} must have at least {#limit} characters.',
+	// Field-specific override for name (applies only to the "name" field)
+	'name.string.min':
+		'Name should be at least {#limit} characters long. Please provide a valid name.'
 };
 
-const validator = joiSchemaValidator(schema, customMessages);
-const { error } = validator.validate({ name: 'Jo', email: 'invalid-email' });
-
-console.log(error);
+const result = validate(
+	schema,
+	{ name: 'Jo', age: 16, email: 'invalid', address: '' },
+	customMessages
+);
+if (result.error) {
+	console.log('Formatted Errors:', result.formattedErrors);
+} else {
+	console.log('Validated Data:', result.value);
+}
 ```
 
-### Example Output
+### Asynchronous Validation
 
-```json
-[
-	{ "field": "name", "type": "string.min", "message": "Name is too short!" },
-	{
-		"field": "email",
-		"type": "string.email",
-		"message": "Please enter a valid email!"
+The `validateAsync` function is particularly useful for real-life scenarios, such as ensuring a username or email is unique in your database. It returns a promise that resolves to a strongly-typed `ValidationResult<T>`.
+
+```typescript
+import Joi from 'joi';
+import { validateAsync } from 'joi-schema-validator';
+
+const schema = Joi.object({
+	username: Joi.string()
+		.min(3)
+		.required()
+		.external(async (value) => {
+			// Simulate an asynchronous uniqueness check (e.g., querying a database)
+			const existingUsernames = ['existingUser', 'user123'];
+			if (existingUsernames.includes(value)) {
+				throw new Error('Username already exists.');
+			}
+			return value;
+		}),
+	email: Joi.string().email().required()
+});
+
+async function runAsyncValidation() {
+	const result = await validateAsync(schema, {
+		username: 'existingUser',
+		email: 'test@example.com'
+	});
+	if (result.error) {
+		console.log('Async Formatted Errors:', result.formattedErrors);
+	} else {
+		console.log('Async Validated Data:', result.value);
 	}
-]
+}
+
+runAsyncValidation();
+```
+
+### Express Middleware for Validation
+
+The `validateMiddleware` function allows you to easily protect your Express routes by validating incoming request bodies. If validation fails, the middleware responds with a 400 status and the formatted errors.
+
+```typescript
+import express from 'express';
+import Joi from 'joi';
+import { validateMiddleware } from 'joi-schema-validator';
+
+const app = express();
+app.use(express.json());
+
+const userSchema = Joi.object({
+	name: Joi.string().min(3).required().label('Name'),
+	email: Joi.string().email().required().label('Email')
+});
+
+app.post('/user', validateMiddleware(userSchema), (req, res) => {
+	res.json({ success: true, data: req.body });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
 ```
 
 ## API Reference
 
-### `joiSchemaValidator(schema: Schema, messages?: ErrorMessages)`
+### `validate(schema: Schema, input: any, options?: Joi.ValidationOptions, messages?: ErrorMessages)`
 
-Creates a validation function with customized error handling.
+-   **Description:** Synchronously validates input against a Joi schema. Returns a `ValidationResult<T>` that includes the validated data, any errors, and formatted error messages.
+-   **Returns:**
+    ```typescript
+    {
+      value: T;
+      error: ValidationError | null;
+      formattedErrors?: ValidationErrorItemFormatted[];
+    }
+    ```
 
-#### Parameters:
+### `validateAsync(schema: Schema, input: any, options?: Joi.ValidationOptions, messages?: ErrorMessages)`
 
-| Parameter  | Type                       | Description                           |
-| ---------- | -------------------------- | ------------------------------------- |
-| `schema`   | `Joi.Schema`               | Joi schema definition for validation. |
-| `messages` | `ErrorMessages (optional)` | Custom error messages.                |
+-   **Description:** Asynchronously validates input. Useful for validations involving async operations (e.g., uniqueness checks).
+-   **Returns:** A promise that resolves to `ValidationResult<T>`.
 
-### `.validate(input: any, options?: Joi.ValidationOptions)`
+### `validateMiddleware(schema: Schema, messages?: ErrorMessages)`
 
-Validates input data against the schema.
-
-#### Parameters:
-
-| Parameter | Type                               | Description             |
-| --------- | ---------------------------------- | ----------------------- |
-| `input`   | `any`                              | Data to be validated.   |
-| `options` | `Joi.ValidationOptions (optional)` | Joi validation options. |
-
-#### Returns:
-
-```typescript
-{
-  value: any; // The validated data
-  error: ValidationErrorItemFormatted[] | null; // Formatted errors
-}
-```
+-   **Description:** Returns an Express middleware function that validates `req.body` against the provided schema. If validation fails, it responds with a 400 status and error details.
+-   **Usage:** Attach to Express routes to automatically validate incoming data.
 
 ## Type Definitions
 
@@ -140,7 +170,21 @@ export interface ValidationErrorItemFormatted {
 	type: string;
 	message: string;
 }
+
+export interface ErrorMessages {
+	[key: string]: string;
+}
+
+export interface ValidationResult<T> {
+	value: T;
+	error: ValidationError | null;
+	formattedErrors?: ValidationErrorItemFormatted[];
+}
 ```
+
+## Release Notes
+
+See [GitHub Releases](https://github.com/pavan-dulam/joi-schema-validator/releases/latest) for detailed release notes
 
 ## Contributing
 
