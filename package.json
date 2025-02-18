@@ -1,6 +1,6 @@
 {
 	"name": "joi-schema-validator",
-	"version": "3.0.2",
+	"version": "3.0.3",
 	"description": "A world-class Joi validation error formatter for structured, user-friendly error handling.",
 	"main": "dist/index.js",
 	"types": "dist/types/index.d.ts",
@@ -53,8 +53,5 @@
 		"nested-validation",
 		"frontend-friendly",
 		"field-validation"
-	],
-	"dependencies": {
-		"joi-schema-validator": "^3.0.1"
-	}
+	]
 }
