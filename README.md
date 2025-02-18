@@ -3,6 +3,7 @@
 ![npm](https://img.shields.io/npm/v/joi-schema-validator)
 ![license](https://img.shields.io/npm/l/joi-schema-validator)
 ![build](https://img.shields.io/github/actions/workflow/status/pavan-dulam/joi-schema-validator/publish.yml)
+![downloads](https://img.shields.io/npm/d18m/joi-schema-validator)
 
 A world-class Joi validation error formatter for structured, user-friendly error handling in Node.js applications.
 
