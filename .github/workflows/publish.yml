@@ -4,7 +4,6 @@ on:
     push:
         branches:
             - main # Trigger on main branch push
-            - dev # Trigger on dev branch push
 
 jobs:
     publish:
@@ -29,8 +28,6 @@ jobs:
                   BRANCH_NAME=${GITHUB_REF#refs/heads/}
                   if [[ "$BRANCH_NAME" == "main" ]]; then
                     echo "TAG=latest" >> $GITHUB_ENV
-                  elif [[ "$BRANCH_NAME" == "dev" ]]; then
-                    echo "TAG=beta" >> $GITHUB_ENV
                   else
                     echo "TAG=next" >> $GITHUB_ENV
                   fi
