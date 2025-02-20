@@ -150,7 +150,11 @@ runAsyncValidation();
 
 ```json
 {
-	"errors": [
+	"value": {
+		"username": "ex",
+		"email": "test@example.com"
+	},
+	"error": [
 		{
 			"field": "username",
 			"type": "external",
