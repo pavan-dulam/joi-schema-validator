@@ -1,4 +1,11 @@
-src
+src/
 node_modules/
 src/
 .github/
+package-lock.json
+tsconfig.json
+tests/
+examples/
+.env
+.git
+.gitignore
